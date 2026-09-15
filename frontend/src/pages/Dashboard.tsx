@@ -32,9 +32,9 @@ export function Dashboard() {
   }
 
   const handleAdd = async (entry: Partial<FoodEntry>) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getISTDateString();
     if (selectedDate !== todayStr) {
-      entry.consumed_at = new Date(`${selectedDate}T12:00:00Z`).toISOString();
+      entry.consumed_at = new Date(`${selectedDate}T12:00:00+05:30`).toISOString();
     }
     await addFood(entry);
     setIsAddingMode(false);
@@ -56,7 +56,7 @@ export function Dashboard() {
             {getGreeting()} <span className="inline-block animate-bounce origin-bottom-right">👋</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">
-            {selectedDate === new Date().toISOString().split('T')[0] ? "Let's see how you're fueling today." : `Here is your summary for ${selectedDate}.`}
+            {selectedDate === getISTDateString() ? "Let's see how you're fueling today." : `Here is your summary for ${selectedDate}.`}
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
@@ -66,7 +66,7 @@ export function Dashboard() {
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             className="bg-transparent border-none outline-none text-slate-700 dark:text-slate-300 font-medium cursor-pointer"
-            max={new Date().toISOString().split('T')[0]}
+            max={getISTDateString()}
             style={{ colorScheme: 'inherit' }}
           />
         </div>
@@ -82,7 +82,7 @@ export function Dashboard() {
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
                   <h2 className="text-slate-300 dark:text-slate-400 font-medium flex items-center gap-2 mb-2">
-                    <span>🔥</span> {selectedDate === new Date().toISOString().split('T')[0] ? "Today's" : selectedDate} Calories
+                    <span>🔥</span> {selectedDate === getISTDateString() ? "Today's" : selectedDate} Calories
                   </h2>
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-5xl font-bold tracking-tight text-white dark:text-slate-100">

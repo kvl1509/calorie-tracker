@@ -10,9 +10,9 @@ class Settings(BaseSettings):
     port: int = 8000
     host: str = "0.0.0.0"
     
-    database_url: str = "sqlite:///./calorie_tracker.db"
+    database_url: str = os.getenv("DATABASE_URL")
     
-    ai_provider: str = os.getenv("AI_PROVIDER") # gemini, openai, fallback
+    ai_provider: str = os.getenv("AI_PROVIDER")
     ai_api_key: str = os.getenv("AI_API_KEY")
     ai_model: str = os.getenv("AI_MODEL")
     
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     emails_from_email: str = os.getenv("EMAILS_FROM_EMAIL")
     emails_from_name: str = os.getenv("EMAILS_FROM_NAME", "BitWise AI")
     
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
+    cors_origins: str = os.getenv("CORS_ORIGINS")
     
     @property
     def cors_origins_list(self) -> List[str]:

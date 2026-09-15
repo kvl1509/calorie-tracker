@@ -35,9 +35,9 @@ class GeminiNutritionProvider(NutritionAIProvider):
         
         try:
             from google.genai import types
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
+            chat = self.client.chats.create(model=self.model_name)
+            response = chat.send_message(
+                message=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     temperature=0.2, # Low temp for factual consistency

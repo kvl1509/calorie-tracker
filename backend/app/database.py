@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.config import settings
 
-engine_args = {}
+engine_args = {"pool_pre_ping": True}
 # For SQLite, we need to allow multiple threads to interact with the connection
 if settings.database_url.startswith("sqlite"):
     engine_args["connect_args"] = {"check_same_thread": False}
