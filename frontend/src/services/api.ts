@@ -8,7 +8,10 @@ import type {
   User
 } from '../types';
 
-const API_BASE = '/api';
+// Read from VITE_API_URL environment variable, fallback to just '/api'
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('auth_token');
