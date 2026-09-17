@@ -8,7 +8,9 @@ import { useTheme } from './hooks/useTheme';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('auth_token'));
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'history' | 'profile' | 'settings'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'history' | 'profile' | 'settings'>(() => {
+    return localStorage.getItem('is_new_user') === 'true' ? 'profile' : 'dashboard';
+  });
   
   // Initialize theme
   useTheme();
@@ -26,8 +28,17 @@ function App() {
     setIsAuthenticated(false);
   };
 
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    if (localStorage.getItem('is_new_user') === 'true') {
+      setCurrentTab('profile');
+    } else {
+      setCurrentTab('dashboard');
+    }
+  };
+
   if (!isAuthenticated) {
-    return <Login onLogin={() => setIsAuthenticated(true)} />;
+    return <Login onLogin={handleLogin} />;
   }
 
   const renderContent = () => {
@@ -35,7 +46,7 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'profile':
-        return <Profile onLogout={handleLogout} />;
+        return <Profile onLogout={handleLogout} onNavigate={setCurrentTab} />;
       case 'settings':
         return <SettingsPage />;
       case 'history':

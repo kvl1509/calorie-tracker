@@ -41,8 +41,13 @@ export function Login({ onLogin }: LoginProps) {
     setError('');
     setIsLoading(true);
     try {
-      const { access_token } = await api.verifyCode(email, code);
+      const { access_token, is_new_user } = await api.verifyCode(email, code);
       localStorage.setItem('auth_token', access_token);
+      if (is_new_user) {
+        localStorage.setItem('is_new_user', 'true');
+      } else {
+        localStorage.removeItem('is_new_user');
+      }
       localStorage.removeItem('login_email');
       localStorage.removeItem('login_step');
       onLogin();

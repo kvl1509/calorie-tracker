@@ -10,6 +10,7 @@ class AuthVerify(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    is_new_user: bool
 
 class UserUpdate(BaseModel):
     username: str | None = None

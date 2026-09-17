@@ -44,7 +44,7 @@ export const api = {
     if (!res.ok) throw new Error('Failed to request code');
   },
 
-  async verifyCode(email: string, code: string): Promise<{ access_token: string }> {
+  async verifyCode(email: string, code: string): Promise<{ access_token: string, is_new_user: boolean }> {
     const res = await fetch(`${API_BASE}/auth/verify-code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -82,12 +82,14 @@ def verify_auth_code(req: AuthVerify, db: Session = Depends(get_db)):
     db.delete(auth_code)
     
     # Get or create user
+    is_new_user = False
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
         user = User(email=req.email)
         db.add(user)
         db.commit()
         db.refresh(user)
+        is_new_user = True
         
     # Create JWT
     access_token_expires = timedelta(days=7)
@@ -95,7 +97,7 @@ def verify_auth_code(req: AuthVerify, db: Session = Depends(get_db)):
     to_encode = {"exp": expire, "sub": str(user.id)}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     
-    return {"access_token": encoded_jwt, "token_type": "bearer"}
+    return {"access_token": encoded_jwt, "token_type": "bearer", "is_new_user": is_new_user}
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):

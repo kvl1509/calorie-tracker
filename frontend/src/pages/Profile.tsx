@@ -4,13 +4,20 @@ import type { User, UserGoals } from '../types';
 import { Button } from '../components/UI/Button';
 import { Card } from '../components/UI/Card';
 
-export function Profile({ onLogout }: { onLogout: () => void }) {
+export function Profile({ onLogout, onNavigate }: { onLogout: () => void, onNavigate?: (tab: 'dashboard' | 'history' | 'profile' | 'settings') => void }) {
   const [user, setUser] = useState<User | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<User>>({});
   const [goalsFormData, setGoalsFormData] = useState<Partial<UserGoals>>({});
+  const [isNewUser] = useState(() => localStorage.getItem('is_new_user') === 'true');
+  const [showTutorial, setShowTutorial] = useState(() => localStorage.getItem('is_new_user') === 'true');
+
+  const handleDismissTutorial = () => {
+    setShowTutorial(false);
+    setIsEditing(true); // Automatically open edit mode for new users
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +66,14 @@ export function Profile({ onLogout }: { onLogout: () => void }) {
       });
       setUser(updatedUser);
       setIsEditing(false);
+      
+      if (isNewUser) {
+        localStorage.removeItem('is_new_user');
+        localStorage.setItem('show_dashboard_tutorial', 'true');
+        if (onNavigate) {
+          onNavigate('dashboard');
+        }
+      }
     } catch (err) {
       console.error('Failed to update profile', err);
     }
@@ -90,11 +105,33 @@ export function Profile({ onLogout }: { onLogout: () => void }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Your Profile</h1>
-        <p className="text-slate-500 dark:text-slate-400 font-medium">Manage your personal information and goals.</p>
-      </header>
+    <>
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <Card className="max-w-md w-full p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Welcome to BiteWise! 🎉</h2>
+            <div className="space-y-4 text-slate-600 dark:text-slate-300">
+              <p>We're excited to help you track your calories and nutrition. Here's a quick guide to get started:</p>
+              <ol className="list-decimal list-inside space-y-2 font-medium">
+                <li><strong className="text-slate-900 dark:text-slate-100">Set your Profile & Goals:</strong> Fill in your info right here to let us calculate your BMI and daily targets. Don't forget to click <strong>Save</strong>!</li>
+                <li><strong className="text-slate-900 dark:text-slate-100">Track Food:</strong> After saving, we'll head to the Dashboard to add what you eat using AI.</li>
+                <li><strong className="text-slate-900 dark:text-slate-100">Settings:</strong> Customize the app appearance later in the Settings tab.</li>
+              </ol>
+            </div>
+            <div className="mt-8 flex justify-end">
+              <Button onClick={handleDismissTutorial} className="bg-purple-600 text-white hover:bg-purple-700 w-full md:w-auto">
+                Let's set up my profile
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      <div className="max-w-3xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
+        <header className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Your Profile</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Manage your personal information and goals.</p>
+        </header>
 
       <Card className="p-8 space-y-6">
         <div className="flex justify-between items-center mb-4">
@@ -233,5 +270,6 @@ export function Profile({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
     </div>
+    </>
   );
 }

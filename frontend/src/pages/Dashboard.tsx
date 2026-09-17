@@ -18,6 +18,16 @@ export function Dashboard() {
   });
   const { summary, goals, isLoading, error, addFood, deleteFood } = useTracker(selectedDate);
   const [isAddingMode, setIsAddingMode] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(() => 
+    localStorage.getItem('show_dashboard_tutorial') === 'true' || 
+    localStorage.getItem('is_new_user') === 'true'
+  );
+
+  const handleDismissTutorial = () => {
+    setShowTutorial(false);
+    localStorage.removeItem('show_dashboard_tutorial');
+    localStorage.removeItem('is_new_user');
+  };
 
   if (isLoading && (!summary || !goals)) {
     return (
@@ -48,9 +58,27 @@ export function Dashboard() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <>
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <Card className="max-w-md w-full p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">You're all set! 🚀</h2>
+            <div className="space-y-4 text-slate-600 dark:text-slate-300">
+              <p>Great job setting up your profile. Now let's track your first meal.</p>
+              <p>Click the <strong>Add Food</strong> button below. You can simply describe what you ate (e.g. "I had a chicken sandwich and an apple"), and our AI will automatically estimate the calories and macros for you!</p>
+            </div>
+            <div className="mt-8 flex justify-end">
+              <Button onClick={handleDismissTutorial} className="bg-purple-600 text-white hover:bg-purple-700 w-full md:w-auto">
+                Got it
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      <div className="max-w-3xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
+        {/* Header */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             {getGreeting()} <span className="inline-block animate-bounce origin-bottom-right">👋</span>
@@ -151,6 +179,7 @@ export function Dashboard() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }
