@@ -212,7 +212,7 @@ export function Profile({ onLogout, onNavigate }: { onLogout: () => void, onNavi
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">BMI (Read-only)</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">BMI</label>
             <input 
               type="text" 
               value={calculateBMI()} 

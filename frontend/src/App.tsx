@@ -2,18 +2,41 @@ import { Dashboard } from './pages/Dashboard';
 import { Login } from './pages/Login';
 import { Profile } from './pages/Profile';
 import { Settings as SettingsPage } from './pages/Settings';
+import { AddFood } from './pages/AddFood';
 import { Activity, LayoutDashboard, Settings, UserCircle } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useTheme } from './hooks/useTheme';
 
+type TabType = 'dashboard' | 'history' | 'profile' | 'settings' | 'addFood';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('auth_token'));
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'history' | 'profile' | 'settings'>(() => {
-    return localStorage.getItem('is_new_user') === 'true' ? 'profile' : 'dashboard';
-  });
   
+  const getTabFromPath = (): TabType => {
+    const path = window.location.pathname;
+    if (path === '/add') return 'addFood';
+    if (path === '/profile') return 'profile';
+    if (path === '/settings') return 'settings';
+    if (path === '/history') return 'history';
+    return localStorage.getItem('is_new_user') === 'true' ? 'profile' : 'dashboard';
+  };
+
+  const [currentTab, setCurrentTab] = useState<TabType>(getTabFromPath);
+  
+  const [selectedDate, setSelectedDate] = useState(() => {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  });
+
   // Initialize theme
   useTheme();
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentTab(getTabFromPath());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -23,6 +46,17 @@ function App() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  const handleNavigate = (tab: TabType) => {
+    setCurrentTab(tab);
+    let path = '/';
+    if (tab === 'addFood') path = '/add';
+    else if (tab === 'profile') path = '/profile';
+    else if (tab === 'settings') path = '/settings';
+    else if (tab === 'history') path = '/history';
+    
+    window.history.pushState({}, '', path);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     setIsAuthenticated(false);
@@ -31,9 +65,9 @@ function App() {
   const handleLogin = () => {
     setIsAuthenticated(true);
     if (localStorage.getItem('is_new_user') === 'true') {
-      setCurrentTab('profile');
+      handleNavigate('profile');
     } else {
-      setCurrentTab('dashboard');
+      handleNavigate('dashboard');
     }
   };
 
@@ -44,14 +78,16 @@ function App() {
   const renderContent = () => {
     switch (currentTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onNavigate={handleNavigate} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />;
+      case 'addFood':
+        return <AddFood onNavigate={handleNavigate} selectedDate={selectedDate} />;
       case 'profile':
-        return <Profile onLogout={handleLogout} onNavigate={setCurrentTab} />;
+        return <Profile onLogout={handleLogout} onNavigate={handleNavigate} />;
       case 'settings':
         return <SettingsPage />;
       case 'history':
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigate={handleNavigate} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />;
     }
   };
 
@@ -64,19 +100,19 @@ function App() {
           icon={<LayoutDashboard className="w-6 h-6" />} 
           label="Today" 
           active={currentTab === 'dashboard'} 
-          onClick={() => setCurrentTab('dashboard')} 
+          onClick={() => handleNavigate('dashboard')} 
         />
         <NavItem 
           icon={<UserCircle className="w-6 h-6" />} 
           label="Profile" 
           active={currentTab === 'profile'} 
-          onClick={() => setCurrentTab('profile')} 
+          onClick={() => handleNavigate('profile')} 
         />
         <NavItem 
           icon={<Settings className="w-6 h-6" />} 
           label="Settings" 
           active={currentTab === 'settings'} 
-          onClick={() => setCurrentTab('settings')} 
+          onClick={() => handleNavigate('settings')} 
         />
       </nav>
 
@@ -90,17 +126,17 @@ function App() {
           <NavItem 
             icon={<LayoutDashboard className="w-6 h-6" />} 
             active={currentTab === 'dashboard'} 
-            onClick={() => setCurrentTab('dashboard')} 
+            onClick={() => handleNavigate('dashboard')} 
           />
           <NavItem 
             icon={<UserCircle className="w-6 h-6" />} 
             active={currentTab === 'profile'} 
-            onClick={() => setCurrentTab('profile')} 
+            onClick={() => handleNavigate('profile')} 
           />
           <NavItem 
             icon={<Settings className="w-6 h-6" />} 
             active={currentTab === 'settings'} 
-            onClick={() => setCurrentTab('settings')} 
+            onClick={() => handleNavigate('settings')} 
           />
         </div>
         
